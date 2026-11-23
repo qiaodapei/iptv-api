@@ -1,3 +1,5 @@
+# Modified by qiaodapei on 2026-11-23: publish the Android 4.4 playlist
+# (AGPL-3.0 section 5(a) modification notice; upstream: Guovin/iptv-api).
 import argparse
 import html
 import json
@@ -14,6 +16,7 @@ MAX_RELEASE_ASSET_BYTES = 2 * 1024 * 1024 * 1024 - 1
 MAX_PAGES_SITE_BYTES = 1024 * 1024 * 1024
 
 OPTIONAL_ASSETS = {
+    "android44.m3u": "android44.m3u",
     "ipv4/result.txt": "ipv4.txt",
     "ipv4/result.m3u": "ipv4.m3u",
     "ipv6/result.txt": "ipv6.txt",
@@ -45,6 +48,15 @@ PAGE_ASSET_GROUPS = (
         "assets": (
             ("result.m3u", "M3U", "完整播放列表", "Complete playlist"),
             ("result.txt", "TXT", "完整文本列表", "Complete text list"),
+        ),
+    },
+    {
+        "id": "android44-results",
+        "eyebrow": "Android 4.4 / 老电视",
+        "title": "Android 4.4 电视列表 / Legacy Android TV",
+        "description": "给只硬解 H.264 的老电视使用：已剔除 HEVC、需要自定义请求头的源，以及高于 1080p 的源，并按六分类整理。 / For legacy TVs that only hardware-decode H.264: HEVC, header-dependent and above-1080p sources are already removed and results are grouped into six categories.",
+        "assets": (
+            ("android44.m3u", "M3U", "Android 4.4 播放列表", "Android 4.4 playlist"),
         ),
     },
     {
@@ -93,6 +105,7 @@ REPOSITORY_PATTERN = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 RELEASE_TAG_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 DEFAULT_PAGE_FAVICON = Path(__file__).resolve().parent.parent / "static/images/favicon.svg"
 PREVIEWABLE_PAGE_ASSETS = {
+    "android44.m3u",
     "result.m3u",
     "result.txt",
     "ipv4.m3u",
