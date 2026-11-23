@@ -1,0 +1,17 @@
+央视频道,#genre#
+CCTV-1,http://x/cctv1-hd.m3u8
+CCTV-1,http://x/cctv1-hevc.m3u8
+CCTV13,http://x/cctv13.m3u8
+CGTN英语,http://x/cgtn-hdr.m3u8
+
+卫视频道,#genre#
+湖南卫视,http://x/hn-low.m3u8
+湖南卫视,http://x/hn-hd.m3u8
+东方卫视4K,http://x/df4k.m3u8
+
+地方频道,#genre#
+浙江新闻,http://x/zjnews.m3u8
+广东少儿,http://x/gdkid.m3u8
+
+其他杂项,#genre#
+某未知台,http://x/unk.m3u8
