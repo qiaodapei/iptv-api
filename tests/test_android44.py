@@ -18,6 +18,7 @@ from utils.android44 import (
     quality_rank,
     render_m3u,
     write_android44,
+    _within_bounds,
 )
 
 
@@ -58,9 +59,27 @@ class ResolutionTests(unittest.TestCase):
         self.assertEqual(parse_resolution("1920x1080"), (1920, 1080))
         self.assertEqual(parse_resolution("1280X720"), (1280, 720))
         self.assertEqual(parse_resolution("1920*1080"), (1920, 1080))
-        self.assertIsNone(parse_resolution("720p"))
         self.assertIsNone(parse_resolution("0x0"))
         self.assertIsNone(parse_resolution(None))
+
+    def test_short_height_notation_is_understood(self):
+        # iptv-scan 的 quality 字段写的是 1080p / 720p 这种简写，不是 宽x高。
+        # 只认 宽x高 会让上界过滤对整批源失效，4K 源混进 1080p 面板的列表。
+        self.assertEqual(parse_resolution("1080p"), (1920, 1080))
+        self.assertEqual(parse_resolution("720p"), (1280, 720))
+        self.assertEqual(parse_resolution("2160p"), (3840, 2160))
+        self.assertEqual(parse_resolution("1080i"), (1920, 1080))
+        self.assertEqual(parse_resolution("1080P"), (1920, 1080))
+        self.assertEqual(parse_resolution(" 1080p "), (1920, 1080))
+        self.assertEqual(parse_resolution("576p"), (1024, 576))
+
+    def test_short_notation_enforces_the_upper_bound(self):
+        for too_tall in ("2160p", "1440p", "1280p"):
+            self.assertFalse(
+                _within_bounds({"resolution": too_tall}), f"{too_tall} 必须被上界过滤挡掉"
+            )
+        for allowed in ("1080p", "720p", "576p", None):
+            self.assertTrue(_within_bounds({"resolution": allowed}), str(allowed))
 
     def test_non_string_resolution_is_treated_as_unknown(self):
         # 上游数据里 resolution 字段可能是 dict 或数字，抛异常会连带整份列表写不出去。

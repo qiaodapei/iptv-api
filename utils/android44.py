@@ -154,20 +154,27 @@ def classify_codec(raw: str | None) -> str | None:
 
 
 def parse_resolution(raw) -> tuple[int, int] | None:
-    """解析 ``"1920x1080"`` / ``"1280X720"`` / ``"1920*1080"``。
+    """解析 ``"1920x1080"`` / ``"1280X720"`` / ``"1920*1080"`` / ``"1080p"`` / ``"1080i"``。
 
     非字符串一律当作「分辨率未知」：上游数据里这个字段可能是 dict 或数字
     （不同源、不同版本写法不一），在这里抛异常会连带整份列表写不出去。
+
+    简写形式（``1080p``/``720i``）必须支持：iptv-scan 的 ``quality`` 字段就是这种
+    写法，只认 ``宽x高`` 会让上界过滤对整批源失效，4K 源直接混进 1080p 面板的列表。
+    只有高度时按 16:9 推宽度，只为满足返回值形状，上界判定用高度。
     """
     if not raw or not isinstance(raw, str):
         return None
-    match = re.fullmatch(r"\s*(\d+)\s*[xX*]\s*(\d+)\s*", raw)
-    if not match:
-        return None
-    width, height = int(match.group(1)), int(match.group(2))
-    if width <= 0 or height <= 0:
-        return None
-    return width, height
+    text = raw.strip()
+    match = re.fullmatch(r"(\d+)\s*[xX*]\s*(\d+)", text)
+    if match:
+        width, height = int(match.group(1)), int(match.group(2))
+        return (width, height) if width > 0 and height > 0 else None
+    short = re.fullmatch(r"(\d+)\s*[pPiI]", text)
+    if short:
+        height = int(short.group(1))
+        return (height * 16 // 9, height) if height > 0 else None
+    return None
 
 
 def quality_rank(raw: str | None) -> int:
