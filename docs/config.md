@@ -48,6 +48,10 @@
 | source_file            | 模板文件路径                                                                                                               | config/demo.txt                          |
 | final_file             | 生成结果文件路径                                                                                                             | output/result.txt                        |
 | open_realtime_write    | 开启实时写入结果文件，在测速过程中可以访问并使用更新结果                                                                                         | True                                     |
+| open_android44_result    | 开启生成 Android 4.4 电视专用播放列表，按电视端解析器硬限制过滤（仅 H.264、分辨率 ≤1920x1080、剔除需要请求头的源）并统一为六分类 | True |
+| android44_file           | Android 4.4 电视列表输出路径 | output/android44.m3u |
+| android44_max_channels   | Android 4.4 电视列表线路数上限，建议不超过 2000 | 1500 |
+| android44_allow_unknown_codec | 允许编码未知的源进入电视列表，关闭后只保留明确探测到 H.264 的源 | True |
 | open_service           | 开启页面服务，用于控制是否启动结果页面服务；如果使用青龙等平台部署，有专门设定的定时任务，需要更新完成后停止运行，可以关闭该功能                                                     | True                                     |
 | service_port           | HTTP 服务访问端口；桌面版启用推流时由 Nginx 监听，新配置通常只需修改此端口                                                                    | 8080                                     |
 | public_url             | 推荐的公网完整访问地址，例如 `https://iptv.example.com` 或 `http://host:8088`；用于统一生成播放列表、EPG、台标和服务链接                                |                                          |

@@ -1,3 +1,5 @@
+# Modified by qiaodapei on 2026-11-23: added Android 4.4 playlist output
+# (AGPL-3.0 section 5(a) modification notice; upstream: Guovin/iptv-api).
 import configparser
 import difflib
 import ipaddress
@@ -55,7 +57,9 @@ class ConfigValidationError(ValueError):
 
 
 BOOLEAN_KEYS = {
+    "android44_allow_unknown_codec",
     "ipv6_support",
+    "open_android44_result",
     "open_auto_disable_source",
     "open_empty_category",
     "open_epg",
@@ -129,6 +133,8 @@ CONFIG_SCHEMA = {
     ),
     "source_file": ConfigRule(),
     "final_file": ConfigRule(),
+    "android44_file": ConfigRule(),
+    "android44_max_channels": ConfigRule(kind="integer", minimum=1, maximum=2000),
     "update_times": ConfigRule(kind="times", allow_empty=True),
     "time_zone": ConfigRule(kind="timezone"),
     "public_domain": ConfigRule(),
@@ -435,6 +441,28 @@ class ConfigManager:
     @property
     def open_m3u_result(self):
         return self.config.getboolean("Settings", "open_m3u_result", fallback=True)
+
+    @property
+    def open_android44_result(self):
+        return self.config.getboolean("Settings", "open_android44_result", fallback=True)
+
+    @property
+    def android44_file(self):
+        return self.config.get(
+            "Settings", "android44_file", fallback="output/android44.m3u"
+        )
+
+    @property
+    def android44_max_channels(self):
+        return self.config.getint(
+            "Settings", "android44_max_channels", fallback=1500
+        )
+
+    @property
+    def android44_allow_unknown_codec(self):
+        return self.config.getboolean(
+            "Settings", "android44_allow_unknown_codec", fallback=True
+        )
 
     @property
     def open_subscribe(self):

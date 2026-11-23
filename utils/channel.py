@@ -1,3 +1,5 @@
+# Modified by qiaodapei on 2026-11-23: added Android 4.4 playlist output
+# (AGPL-3.0 section 5(a) modification notice; upstream: Guovin/iptv-api).
 import asyncio
 import gzip
 import hashlib
@@ -12,6 +14,7 @@ from itertools import chain
 from typing import cast
 
 import utils.constants as constants
+from utils.android44 import write_android44
 from utils.artifacts import ArtifactWriter
 from utils.alias import Alias
 from utils.channel_quality import channel_result_rejection, is_channel_result_valid
@@ -1432,6 +1435,45 @@ def process_write_content(
     return True
 
 
+def _write_android44_output(data, reporter=None):
+    """
+    Write the extra playlist aimed at legacy Android 4.4 TVs.
+
+    Failures here must never break the normal output, so everything is swallowed
+    into the reporter. The filter itself lives in ``utils.android44``; see that
+    module for why each rule exists.
+    """
+    try:
+        stats = write_android44(
+            data,
+            config.android44_file,
+            max_channels=config.android44_max_channels,
+            allow_unknown_codec=config.android44_allow_unknown_codec,
+        )
+    except Exception as e:
+        if reporter:
+            reporter.error(
+                "output.android44_failed",
+                t("msg.write_error").format(info=e),
+                phase="output",
+                error_type=type(e).__name__,
+            )
+        else:
+            print(t("msg.write_error").format(info=e), flush=True)
+        return
+    if reporter:
+        reporter.info(
+            "output.android44_written",
+            f"Android 4.4 列表已生成：{stats['channels']} 频道 / "
+            f"{stats['bytes']} 字节 / 分组 {stats['categories']}",
+            phase="output",
+            channels=stats["channels"],
+            bytes=stats["bytes"],
+            categories=stats["categories"],
+            digest=stats["digest"],
+        )
+
+
 def write_channel_to_file(
         data,
         ipv6=False,
@@ -1527,6 +1569,8 @@ def write_channel_to_file(
                     print(t("msg.write_error").format(info=e), flush=True)
         if not skip_print:
             print(t("msg.write_success"), flush=True)
+        if config.open_android44_result:
+            _write_android44_output(data, reporter)
         if reporter and is_last:
             reporter.info(
                 "output.written",

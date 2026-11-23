@@ -1,3 +1,5 @@
+# Modified by qiaodapei on 2026-11-23: added Android 4.4 playlist output
+# (AGPL-3.0 section 5(a) modification notice; upstream: Guovin/iptv-api).
 import argparse
 import ctypes
 import ipaddress
@@ -195,6 +197,19 @@ def show_hls_ipv6_txt():
 @app.route("/m3u")
 def show_m3u():
     return get_result_file_content(path=config.final_file, file_type="m3u")
+
+
+@app.route("/android44/m3u")
+def show_android44_m3u():
+    return get_result_file_content(path=config.android44_file, file_type="m3u")
+
+
+@app.route("/android44")
+def show_android44_result():
+    return get_result_file_content(
+        path=config.android44_file,
+        file_type="m3u",
+    )
 
 
 @app.route("/hls/m3u")
